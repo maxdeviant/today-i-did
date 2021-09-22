@@ -4,5 +4,6 @@
   "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
   "purescript.addSpagoSources": true,
   "purescript.addNpmPath": true,
-  "purescript.buildCommand": "spago build --purs-args --json-errors"
+  "purescript.buildCommand": "spago build --purs-args --json-errors",
+  "purescript.formatter": "purs-tidy"
 }
