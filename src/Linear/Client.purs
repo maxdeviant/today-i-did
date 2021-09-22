@@ -1,4 +1,8 @@
-module Linear.Client (LinearClient, ApiKey(..), mkClient) where
+module Linear.Client
+  ( LinearClient
+  , ApiKey(..)
+  , mkClient
+  ) where
 
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, runEffectFn1)
