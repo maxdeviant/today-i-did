@@ -1,3 +1,14 @@
+#
+# Today I Did
+#
+
+# Keep it secret, keep it safe.
+.env
+
+#
+# PureScript
+#
+
 /bower_components/
 /node_modules/
 /.pulp-cache/
