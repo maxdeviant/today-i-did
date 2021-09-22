@@ -19,7 +19,10 @@ derive instance newtypeIssueId :: Newtype IssueId _
 
 derive newtype instance showIssueId :: Show IssueId
 
-newtype Issue = Issue { identifier :: IssueId }
+newtype Issue = Issue
+  { identifier :: IssueId
+  , title :: String
+  }
 
 derive instance newtypeIssue :: Newtype Issue _
 
