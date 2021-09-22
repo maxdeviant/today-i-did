@@ -10,6 +10,7 @@ import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console as Console
+import GitHub.Client as GitHub
 import Linear.Client as Linear
 import Linear.Issue (IssueId(..))
 import Linear.Issue as Issue
@@ -26,6 +27,13 @@ main = launchAff_ $ runExceptT do
       Nothing -> Left "LINEAR_API_KEY not set."
   linearClient <- liftEffect $ Linear.mkClient linearApiKey
 
-  issue <- lift $ Issue.findIssue linearClient (IssueId "API-379")
+  githubToken <- do
+    token <- liftEffect $ lookupEnv "GITHUB_TOKEN"
+    except $ case token of
+      Just token' -> Right $ GitHub.PersonalAccessToken token'
+      Nothing -> Left "GITHUB_TOKEN not set."
+  githubClient <- liftEffect $ GitHub.mkClient githubToken
+
+  issue <- lift $ Issue.findIssue linearClient (IssueId "API-767")
 
   Console.logShow issue

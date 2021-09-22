@@ -6,6 +6,7 @@
   "author": "Marshall Bowers <elliott.codes@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@linear/sdk": "1.20.0"
+    "@linear/sdk": "1.20.0",
+    "@octokit/rest": "18.10.0"
   }
 }
