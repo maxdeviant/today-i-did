@@ -23,7 +23,7 @@ import GitHub.Client (GitHubClient)
 import GitHub.PullRequest (PullRequest(..), Comment)
 import GitHub.PullRequest as PullRequest
 import Linear.Client (LinearClient)
-import Linear.Issue (IssueId(..))
+import Linear.Issue (Issue(..), IssueId(..))
 import Linear.Issue as Issue
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff as Fs
@@ -88,7 +88,13 @@ fillOut githubClient linearClient (DailyReport dailyReport) = runExceptT do
                 let
                   prLink :: String
                   prLink = i "[PR " pullRequest.number "](" word ")"
-                pure $ i "(" prLink ")"
+
+                  linearIssueLinks :: Array String
+                  linearIssueLinks = linearIssues # map \(Issue { identifier: (IssueId id), url }) -> i "[" id "](" url ")"
+
+                  allLinks = linearIssueLinks `Array.snoc` prLink
+
+                pure $ i "(" (allLinks # String.joinWith ", ") ")"
               Nothing -> pure word
         )
     pure $ processedWords # String.joinWith " "
