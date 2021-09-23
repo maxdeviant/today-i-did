@@ -31,7 +31,7 @@ main = runAff_ logError $ runExceptT do
     except $ case apiKey of
       Just apiKey' -> Right $ Linear.ApiKey apiKey'
       Nothing -> Left "LINEAR_API_KEY not set."
-  _linearClient <- liftEffect $ Linear.mkClient linearApiKey
+  linearClient <- liftEffect $ Linear.mkClient linearApiKey
 
   githubToken <- do
     token <- liftEffect $ lookupEnv "GITHUB_TOKEN"
@@ -41,6 +41,6 @@ main = runAff_ logError $ runExceptT do
   githubClient <- liftEffect $ GitHub.mkClient githubToken
 
   dailyReport <- lift $ DailyReport.fromFile "TODAY.md"
-  processedReport <- lift $ DailyReport.fillOut githubClient dailyReport
+  processedReport <- lift $ DailyReport.fillOut githubClient linearClient dailyReport
 
   Console.logShow processedReport

@@ -1,5 +1,6 @@
 module GitHub.PullRequest
   ( PullRequest(..)
+  , Comment
   , findPullRequest
   , listComments
   ) where
