@@ -2,9 +2,10 @@ module Main where
 
 import Prelude
 
-import Control.Monad.Except (except, lift, runExceptT)
+import Control.Monad.Except (ExceptT(..), except, lift, runExceptT)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
+import Data.Newtype (unwrap)
 import Dotenv as DotEnv
 import Effect (Effect)
 import Effect.Aff (Error, runAff_)
@@ -41,6 +42,6 @@ main = runAff_ logError $ runExceptT do
   githubClient <- liftEffect $ GitHub.mkClient githubToken
 
   dailyReport <- lift $ DailyReport.fromFile "TODAY.md"
-  processedReport <- lift $ DailyReport.fillOut githubClient linearClient dailyReport
+  processedReport <- ExceptT $ DailyReport.fillOut githubClient linearClient dailyReport
 
-  Console.logShow processedReport
+  Console.log $ unwrap processedReport
