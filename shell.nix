@@ -4,8 +4,8 @@ let
   easy-ps = import (fetchFromGitHub {
     owner = "justinwoo";
     repo = "easy-purescript-nix";
-    rev = "d9a37c75ed361372e1545f6efbc08d819b3c28c8";
-    sha256 = "1fklhnddy5pzzbxfyrlprsq1p8b6y9v0awv1a1z0vkwqsd8y68yp";
+    rev = "cbcb53725c430de4e69f652d69c1677e17c6bcec";
+    sha256 = "155f8vischacl8108ibgs51kj3r7yq1690y4yb4nnqmnjww41k9b";
   }) {
     inherit pkgs;
   };
@@ -14,7 +14,7 @@ stdenv.mkDerivation {
   name = "today-i-did";
 
   buildInputs = [
-    easy-ps.purs
+    easy-ps.purs-0_14_4
     easy-ps.purs-tidy
     easy-ps.spago
     easy-ps.pulp
