@@ -18,7 +18,6 @@ import Data.String.Regex.Flags (RegexFlags(..), noFlags)
 import Data.String.Utils (lines, words) as String
 import Data.Traversable (traverse)
 import Effect.Aff (Aff)
-import Effect.Class.Console as Console
 import GitHub.Client (GitHubClient)
 import GitHub.PullRequest (PullRequest(..), Comment)
 import GitHub.PullRequest as PullRequest
@@ -84,7 +83,6 @@ fillOut githubClient linearClient (DailyReport dailyReport) = runExceptT do
                 (PullRequest pullRequest) <- lift $ PullRequest.findPullRequest githubClient owner repo pullNumber
                 prComments <- lift $ PullRequest.listComments githubClient owner repo pullNumber
                 linearIssues <- lift $ prComments # findMentionedLinearIssues # traverse (Issue.findIssue linearClient)
-                Console.logShow linearIssues
                 let
                   prLink :: String
                   prLink = i "[PR " pullRequest.number "](" word ")"
