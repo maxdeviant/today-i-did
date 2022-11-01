@@ -7,6 +7,7 @@ use clap::Parser;
 use daily_report::DailyReport;
 use dotenv::dotenv;
 use linear_sdk::LinearClient;
+use log::info;
 use octocrab::Octocrab;
 
 #[derive(Debug, Parser)]
@@ -18,6 +19,8 @@ struct Args {
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
+
+    pretty_env_logger::init();
 
     let args = Args::parse();
 
@@ -32,7 +35,11 @@ async fn main() -> Result<()> {
         .build()
         .with_context(|| "Failed to construct GitHub client")?;
 
+    info!("Building daily report from '{}'", args.file);
+
     let mut daily_report = DailyReport::from_file(args.file).await?;
+
+    info!("Filling out daily report");
 
     daily_report
         .fill_out(&github_client, &linear_client)

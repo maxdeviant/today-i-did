@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::{Context, Result};
 use lazy_static::lazy_static;
 use linear_sdk::LinearClient;
-use octocrab::models::pulls::Comment;
+use octocrab::models::issues::Comment;
 use octocrab::Octocrab;
 use regex::Regex;
 use tokio::fs::File;
@@ -47,16 +47,19 @@ impl DailyReport {
                         repo,
                         pull_number,
                     }) => {
-                        let pulls = github_client.pulls(owner, repo);
-
-                        let pull_request = pulls.get(pull_number).await.with_context(|| {
-                            format!(
-                                "Failed to retrieve GitHub PR {}/{} #{}",
-                                owner, repo, pull_number
-                            )
-                        })?;
-                        let pr_comments = pulls
-                            .list_comments(Some(pull_request.number))
+                        let pull_request = github_client
+                            .pulls(owner, repo)
+                            .get(pull_number)
+                            .await
+                            .with_context(|| {
+                                format!(
+                                    "Failed to retrieve GitHub PR {}/{} #{}",
+                                    owner, repo, pull_number
+                                )
+                            })?;
+                        let pr_comments = github_client
+                            .issues(owner, repo)
+                            .list_comments(pull_request.number)
                             .send()
                             .await
                             .with_context(|| {
@@ -80,7 +83,7 @@ impl DailyReport {
 
                         let mut all_links = linear_issues
                             .into_iter()
-                            .map(|issue| format!("[{}]({})", issue.id, issue.url))
+                            .map(|issue| format!("[{}]({})", issue.identifier, issue.url))
                             .collect::<Vec<_>>();
                         all_links.push(pr_link);
 
@@ -160,17 +163,13 @@ impl TryFrom<String> for LinearIssueUrl {
 }
 
 fn is_from_linear_bot(comment: &Comment) -> bool {
-    comment
-        .user
-        .as_ref()
-        .map(|user| user.login == "linear-app[bot]")
-        .unwrap_or(false)
+    comment.user.login == "linear[bot]"
 }
 
 fn find_issues_in_body(body: &str) -> Vec<String> {
     lazy_static! {
         static ref LINEAR_ISSUE_URL_PATTERN: Regex =
-            Regex::new("https:\\/\\/linear\\.app\\/.*\\/issue\\/[-A-Z0-9]*\\/[-a-z0-9]*").unwrap();
+            Regex::new("https://linear.app/.*/issue/[-A-Z0-9]*/[-a-z0-9]*").unwrap();
     }
 
     LINEAR_ISSUE_URL_PATTERN
@@ -183,7 +182,12 @@ fn find_mentioned_linear_issues(comments: Vec<Comment>) -> Vec<String> {
     comments
         .into_iter()
         .filter(is_from_linear_bot)
-        .flat_map(|comment| find_issues_in_body(&comment.body))
+        .flat_map(|comment| {
+            comment
+                .body
+                .map(|body| find_issues_in_body(&body))
+                .unwrap_or_default()
+        })
         .filter_map(|url| LinearIssueUrl::try_from(url).map(|x| x.issue_id).ok())
         .collect()
 }
