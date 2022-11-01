@@ -1,0 +1,12 @@
+#
+# Today I Did
+#
+
+# Keep it secret, keep it safe.
+.env
+
+#
+# Rust
+#
+
+/target

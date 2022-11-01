@@ -1,0 +1,16 @@
+[package]
+name = "today_i_did"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.0.18", features = ["derive"] }
+dotenv = "0.15.0"
+lazy_static = "1.4.0"
+linear_sdk = "0.0.1"
+octocrab = "0.17.0"
+regex = "1.5"
+tokio = { version = "1.21.2", features = ["full"] }
