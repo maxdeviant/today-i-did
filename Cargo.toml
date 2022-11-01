@@ -1,5 +1,5 @@
 [package]
-name = "today_i_did"
+name = "today-i-did"
 version = "0.1.0"
 edition = "2021"
 
