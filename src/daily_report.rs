@@ -40,7 +40,7 @@ impl DailyReport {
         for line in self.contents.lines() {
             let mut filled_words = Vec::new();
 
-            for word in line.split(" ") {
+            for word in line.split(' ') {
                 match PullRequestUrl::try_from(word) {
                     Ok(PullRequestUrl {
                         owner,
@@ -118,7 +118,7 @@ impl<'a> TryFrom<&'a str> for PullRequestUrl<'a> {
     type Error = ParsePullRequestUrlError;
 
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        match value.split("/").skip(2).collect::<Vec<_>>().as_slice() {
+        match value.split('/').skip(2).collect::<Vec<_>>().as_slice() {
             ["github.com", owner, repo, "pull", pull_number] => {
                 let pull_number = pull_number
                     .parse()
@@ -151,7 +151,7 @@ impl TryFrom<String> for LinearIssueUrl {
     type Error = ParseLinearIssueUrlError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        match value.split("/").skip(2).collect::<Vec<_>>().as_slice() {
+        match value.split('/').skip(2).collect::<Vec<_>>().as_slice() {
             ["linear.app", _team, "issue", id, _slug] => Ok(Self {
                 issue_id: id.to_string(),
             }),
@@ -173,7 +173,7 @@ fn find_issues_in_body(body: &str) -> Vec<String> {
     }
 
     LINEAR_ISSUE_URL_PATTERN
-        .captures_iter(&body)
+        .captures_iter(body)
         .map(|capture| capture.get(0).unwrap().as_str().to_string())
         .collect()
 }
