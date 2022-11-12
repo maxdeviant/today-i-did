@@ -8,11 +8,15 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 clap = { version = "4.0.18", features = ["derive"] }
+dialoguer = "0.10"
 dotenv = "0.15.0"
+home = "0.5.4"
 lazy_static = "1.4.0"
 linear_sdk = "0.0.1"
 log = "0.4"
 octocrab = "0.17.0"
 pretty_env_logger = "0.4"
 regex = "1.5"
+serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.21.2", features = ["full"] }
+toml = "0.5"

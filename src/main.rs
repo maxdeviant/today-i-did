@@ -1,14 +1,15 @@
+mod configuration;
 mod daily_report;
-
-use std::env;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use daily_report::DailyReport;
 use dotenv::dotenv;
 use linear_sdk::LinearClient;
 use log::info;
 use octocrab::Octocrab;
+
+use crate::configuration::Configuration;
+use crate::daily_report::DailyReport;
 
 #[derive(Debug, Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -24,14 +25,16 @@ async fn main() -> Result<()> {
 
     let args = Args::parse();
 
-    let linear_api_key = linear_sdk::ApiKey::from(
-        env::var("LINEAR_API_KEY").with_context(|| "LINEAR_API_KEY not set")?,
-    );
+    let config = match Configuration::try_read().await? {
+        Some(config) => config,
+        None => Configuration::initialize().await?,
+    };
+
+    let linear_api_key = linear_sdk::ApiKey::from(config.linear_api_key);
     let linear_client = LinearClient::new(&linear_api_key);
 
-    let github_token = env::var("GITHUB_TOKEN").with_context(|| "GITHUB_TOKEN not set")?;
     let github_client = Octocrab::builder()
-        .personal_token(github_token)
+        .personal_token(config.github_token)
         .build()
         .with_context(|| "Failed to construct GitHub client")?;
 
