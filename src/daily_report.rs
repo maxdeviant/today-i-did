@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use lazy_static::lazy_static;
 use linear_sdk::LinearClient;
 use octocrab::models::issues::Comment;
@@ -79,7 +79,16 @@ impl DailyReport {
                             linear_issues.push(issue_response.issue);
                         }
 
-                        let pr_link = format!("[PR {}]({})", pull_request.number, pull_request.url);
+                        let pr_link = format!(
+                            "[PR {}]({})",
+                            pull_request.number,
+                            pull_request.html_url.ok_or_else(|| anyhow!(
+                                "No URL found for GitHub PR {}/{} #{}",
+                                owner,
+                                repo,
+                                pull_request.number
+                            ))?
+                        );
 
                         let mut all_links = linear_issues
                             .into_iter()
