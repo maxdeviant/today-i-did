@@ -14,6 +14,7 @@ use crate::daily_report::DailyReport;
 #[derive(Debug, Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
+    /// The TODAY file to process.
     file: String,
 }
 
