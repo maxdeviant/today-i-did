@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use anyhow::{anyhow, Result};
 use dialoguer::Password;
 use serde::{Deserialize, Serialize};
@@ -11,29 +13,22 @@ pub struct Configuration {
 }
 
 impl Configuration {
-    pub async fn try_read() -> Result<Option<Self>> {
-        let Some(home_directory) = home::home_dir() else {
-            return Ok(None);
-        };
+    fn config_directory() -> Result<PathBuf> {
+        let home_directory = home::home_dir().ok_or_else(|| anyhow!("No home directory found"))?;
 
         let mut config_directory = home_directory;
         config_directory.push(format!(".{}", env!("CARGO_PKG_NAME")));
 
+        Ok(config_directory)
+    }
+
+    fn config_filepath() -> Result<PathBuf> {
+        let config_directory = Self::config_directory()?;
+
         let mut config_filepath = config_directory;
         config_filepath.push("config.toml");
 
-        match File::open(config_filepath).await {
-            Ok(mut config_file) => {
-                let mut contents = String::new();
-                config_file.read_to_string(&mut contents).await?;
-
-                let config: Configuration = toml::from_str(&contents)?;
-
-                Ok(Some(config))
-            }
-            Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(None),
-            Err(err) => Err(err)?,
-        }
+        Ok(config_filepath)
     }
 
     pub async fn initialize() -> Result<Self> {
@@ -50,18 +45,25 @@ impl Configuration {
         Ok(config)
     }
 
+    pub async fn try_read() -> Result<Option<Self>> {
+        match File::open(Self::config_filepath()?).await {
+            Ok(mut config_file) => {
+                let mut contents = String::new();
+                config_file.read_to_string(&mut contents).await?;
+
+                let config: Configuration = toml::from_str(&contents)?;
+
+                Ok(Some(config))
+            }
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(err) => Err(err)?,
+        }
+    }
+
     pub async fn save(&self) -> Result<()> {
-        let home_directory = home::home_dir().ok_or_else(|| anyhow!("No home directory found"))?;
+        fs::create_dir_all(&Self::config_directory()?).await?;
 
-        let mut config_directory = home_directory;
-        config_directory.push(format!(".{}", env!("CARGO_PKG_NAME")));
-
-        fs::create_dir_all(&config_directory).await?;
-
-        let mut config_filepath = config_directory;
-        config_filepath.push("config.toml");
-
-        let mut config_file = File::create(config_filepath).await?;
+        let mut config_file = File::create(Self::config_filepath()?).await?;
         config_file
             .write_all(toml::to_string_pretty(self)?.as_bytes())
             .await?;
